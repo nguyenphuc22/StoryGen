@@ -38,8 +38,8 @@ def create_flexible_layout(num_images, custom_layout=None):
     return default_layouts.get(num_images, default_layouts[4])
 
 
-def create_pdf(images, story_content, title, font_size, custom_layout, border_thickness, dialogue_position,
-               frame_color):
+def create_pdf(images, story_content, title, font_size, custom_layout, border_thickness, dialogue_position, frame_color,
+               full_fill=False):
     pdf_path = "story_output.pdf"
     page_width, page_height = A4
     margin = 0.5 * inch
@@ -78,13 +78,21 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
 
         # Add image (adjusted to fit inside the border)
         image_margin = border_thickness / 2
-        c.drawImage(img_path,
-                    img_x + image_margin,
-                    img_y + image_margin,
-                    width=img_w - 2 * image_margin,
-                    height=img_h - 2 * image_margin,
-                    preserveAspectRatio=True,
-                    mask='auto')
+        if full_fill:
+            c.drawImage(img_path,
+                        img_x + image_margin,
+                        img_y + image_margin,
+                        width=img_w - 2 * image_margin,
+                        height=img_h - 2 * image_margin,
+                        mask='auto')
+        else:
+            c.drawImage(img_path,
+                        img_x + image_margin,
+                        img_y + image_margin,
+                        width=img_w - 2 * image_margin,
+                        height=img_h - 2 * image_margin,
+                        preserveAspectRatio=True,
+                        mask='auto')
 
         # Add dialogue
         c.setFont("ComicSansMS", font_size)
@@ -131,7 +139,7 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
 
 
 def interface(story_content, story_file, num_frames, art_style, title, font_size, custom_layout, border_thickness,
-              dialogue_position, frame_color):
+              dialogue_position, frame_color, full_fill):
     if story_file is not None:
         story_content = read_story_from_file(story_file)
 
@@ -149,7 +157,7 @@ def interface(story_content, story_file, num_frames, art_style, title, font_size
         return [("Error", "No valid images generated")], None
 
     pdf_path = create_pdf(valid_images, story_content, title, font_size, custom_layout, border_thickness,
-                          dialogue_position, frame_color)
+                          dialogue_position, frame_color, full_fill)
 
     return valid_images, pdf_path
 
@@ -166,7 +174,8 @@ iface = gr.Interface(
         gr.Textbox(label="Custom Layout (JSON format, optional)", lines=2),
         gr.Slider(minimum=1, maximum=8, step=0.5, label="Border Thickness", value=3),
         gr.Radio(["inside_top", "inside_bottom", "outside_bottom"], label="Dialogue Position", value="inside_bottom"),
-        gr.ColorPicker(label="Frame Color", value="#4A4A4A")
+        gr.ColorPicker(label="Frame Color", value="#4A4A4A"),
+        gr.Checkbox(label="Full Fill Images", value=False),
     ],
     outputs=[
         gr.Gallery(label="Generated Comic Frames"),
