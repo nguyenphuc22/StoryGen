@@ -18,6 +18,7 @@ pdfmetrics.registerFont(TTFont('ComicSansMS', 'Fonts/am/Action_Man.ttf'))
 
 
 def create_flexible_layout(num_images, custom_layout=None):
+    # Existing layout logic remains the same
     default_layouts = {
         1: [(0, 0, 1, 1)],
         2: [(0, 0, 0.5, 1), (0.5, 0, 0.5, 1)],
@@ -138,8 +139,19 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
     return pdf_path
 
 
-def interface(story_content, story_file, num_frames, art_style, title, font_size, custom_layout, border_thickness,
-              dialogue_position, frame_color, full_fill):
+def interface(
+        story_content,
+        story_file,
+        title,
+        num_frames,
+        art_style,
+        font_size,
+        border_thickness,
+        dialogue_position,
+        frame_color,
+        full_fill,
+        custom_layout
+):
     if story_file is not None:
         story_content = read_story_from_file(story_file)
 
@@ -149,41 +161,145 @@ def interface(story_content, story_file, num_frames, art_style, title, font_size
     num_frames = int(num_frames) if num_frames else 2
 
     result_images = process_story(story_content, num_frames, art_style)
-
     valid_images = [img_path for _, img_path in result_images if
                     not img_path.startswith("Error") and os.path.exists(img_path)]
 
     if not valid_images:
         return [("Error", "No valid images generated")], None
 
-    pdf_path = create_pdf(valid_images, story_content, title, font_size, custom_layout, border_thickness,
-                          dialogue_position, frame_color, full_fill)
+    pdf_path = create_pdf(
+        valid_images,
+        story_content,
+        title,
+        font_size,
+        custom_layout,
+        border_thickness,
+        dialogue_position,
+        frame_color,
+        full_fill
+    )
 
     return valid_images, pdf_path
 
 
-iface = gr.Interface(
-    fn=interface,
-    inputs=[
-        gr.Textbox(label="Story content", lines=5),
-        gr.File(label="Or upload a .txt file"),
-        gr.Slider(minimum=1, maximum=6, step=1, label="Number of frames", value=2),
-        gr.Dropdown(["anime", "fairy tale illustration", "comic", "realistic"], label="Art style", value="comic"),
-        gr.Textbox(label="Story Title", value="My Comic Story"),
-        gr.Slider(minimum=8, maximum=24, step=1, label="Font Size", value=12),
-        gr.Textbox(label="Custom Layout (JSON format, optional)", lines=2),
-        gr.Slider(minimum=1, maximum=8, step=0.5, label="Border Thickness", value=3),
-        gr.Radio(["inside_top", "inside_bottom", "outside_bottom"], label="Dialogue Position", value="inside_bottom"),
-        gr.ColorPicker(label="Frame Color", value="#4A4A4A"),
-        gr.Checkbox(label="Full Fill Images", value=False),
-    ],
-    outputs=[
-        gr.Gallery(label="Generated Comic Frames"),
-        gr.File(label="Download Comic PDF")
-    ],
-    title="Story to Comic Generator",
-    description="Transform your story into a comic book style PDF with customizable layouts, styles, and frame colors!"
-)
+# Create the Gradio interface with improved organization
+with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as iface:
+    gr.Markdown("""
+    # Story to Comic Generator
+    Transform your story into a comic book style PDF with customizable layouts and styles!
+    """)
+
+    with gr.Tabs():
+        # Story Input Tab
+        with gr.TabItem("1️⃣ Story Input"):
+            with gr.Row():
+                with gr.Column():
+                    title = gr.Textbox(
+                        label="Story Title",
+                        value="My Comic Story",
+                        placeholder="Enter your story title..."
+                    )
+                    story_content = gr.Textbox(
+                        label="Story Content",
+                        lines=5,
+                        placeholder="Write your story here..."
+                    )
+                    story_file = gr.File(
+                        label="Or Upload a .txt file",
+                        file_types=[".txt"]
+                    )
+
+        # Comic Style Tab
+        with gr.TabItem("2️⃣ Comic Style"):
+            with gr.Row():
+                with gr.Column():
+                    art_style = gr.Dropdown(
+                        choices=["comic", "anime", "fairy tale illustration", "realistic"],
+                        label="Art Style",
+                        value="comic",
+                        info="Choose the visual style for your comic"
+                    )
+                    num_frames = gr.Slider(
+                        minimum=1,
+                        maximum=6,
+                        step=1,
+                        label="Number of Frames",
+                        value=2,
+                        info="How many panels should your comic have?"
+                    )
+                    frame_color = gr.ColorPicker(
+                        label="Frame Color",
+                        value="#4A4A4A",
+                        info="Choose the color for panel borders"
+                    )
+                    border_thickness = gr.Slider(
+                        minimum=1,
+                        maximum=8,
+                        step=0.5,
+                        label="Border Thickness",
+                        value=3
+                    )
+
+        # Text Settings Tab
+        with gr.TabItem("3️⃣ Text Settings"):
+            with gr.Row():
+                with gr.Column():
+                    font_size = gr.Slider(
+                        minimum=8,
+                        maximum=24,
+                        step=1,
+                        label="Font Size",
+                        value=12
+                    )
+                    dialogue_position = gr.Radio(
+                        choices=["inside_top", "inside_bottom", "outside_bottom"],
+                        label="Dialogue Position",
+                        value="inside_bottom",
+                        info="Where should the dialogue bubbles appear?"
+                    )
+
+        # Advanced Settings Tab
+        with gr.TabItem("⚙️ Advanced"):
+            with gr.Row():
+                with gr.Column():
+                    full_fill = gr.Checkbox(
+                        label="Full Fill Images",
+                        value=False,
+                        info="Should images fill the entire panel?"
+                    )
+                    custom_layout = gr.Textbox(
+                        label="Custom Layout (JSON format)",
+                        lines=2,
+                        placeholder="Advanced: Enter custom panel layout in JSON format",
+                        info="For advanced users: Customize panel positions and sizes"
+                    )
+
+    # Output Section
+    with gr.Row():
+        generate_btn = gr.Button("Generate Comic", variant="primary")
+
+    with gr.Row():
+        gallery = gr.Gallery(label="Generated Comic Frames")
+        pdf_output = gr.File(label="Download Comic PDF")
+
+    # Connect the interface
+    generate_btn.click(
+        interface,
+        inputs=[
+            story_content,
+            story_file,
+            title,
+            num_frames,
+            art_style,
+            font_size,
+            border_thickness,
+            dialogue_position,
+            frame_color,
+            full_fill,
+            custom_layout
+        ],
+        outputs=[gallery, pdf_output]
+    )
 
 if __name__ == "__main__":
     iface.launch()
