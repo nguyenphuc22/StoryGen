@@ -1,3 +1,4 @@
+# ui.kt.py
 import gradio as gr
 from mock_image_generation import read_story_from_file, process_story
 from reportlab.lib.pagesizes import A4
@@ -17,17 +18,48 @@ pdfmetrics.registerFont(TTFont('DejaVuSans', 'Fonts/dsf/DejaVuSans.ttf'))
 pdfmetrics.registerFont(TTFont('ComicSansMS', 'Fonts/am/Action_Man.ttf'))
 
 
-def create_flexible_layout(num_images, custom_layout=None):
-    # Existing layout logic remains the same
+def create_flexible_layout(num_images, custom_layout=None, layout_style='default'):
+    # Each number of frames now has 3 layout options
     default_layouts = {
-        1: [(0, 0, 1, 1)],
-        2: [(0, 0, 0.5, 1), (0.5, 0, 0.5, 1)],
-        3: [(0, 0, 0.5, 0.5), (0.5, 0, 0.5, 0.5), (0, 0.5, 1, 0.5)],
-        4: [(0, 0, 0.5, 0.5), (0.5, 0, 0.5, 0.5), (0, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)],
-        5: [(0, 0, 0.33, 0.5), (0.33, 0, 0.33, 0.5), (0.66, 0, 0.34, 0.5),
-            (0, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)],
-        6: [(0, 0, 0.33, 0.5), (0.33, 0, 0.33, 0.5), (0.66, 0, 0.34, 0.5),
-            (0, 0.5, 0.33, 0.5), (0.33, 0.5, 0.33, 0.5), (0.66, 0.5, 0.34, 0.5)]
+        1: {
+            'default': [(0, 0, 1, 1)],  # Single full frame
+            'option1': [(0.1, 0.1, 0.8, 0.8)],  # Centered frame with margin
+            'option2': [(0.2, 0, 0.6, 1)]  # Centered vertical strip
+        },
+        2: {
+            'default': [(0, 0, 0.5, 1), (0.5, 0, 0.5, 1)],  # Vertical split
+            'option1': [(0, 0, 1, 0.5), (0, 0.5, 1, 0.5)],  # Horizontal split
+            'option2': [(0.1, 0, 0.4, 1), (0.5, 0, 0.4, 1)]  # Vertical split with margins
+        },
+        3: {
+            'default': [(0, 0, 0.5, 0.5), (0.5, 0, 0.5, 0.5), (0, 0.5, 1, 0.5)],  # Two top, one bottom
+            'option1': [(0, 0, 1, 0.4), (0, 0.4, 0.5, 0.6), (0.5, 0.4, 0.5, 0.6)],  # One top, two bottom
+            'option2': [(0, 0, 0.33, 1), (0.33, 0, 0.34, 1), (0.67, 0, 0.33, 1)]  # Three vertical strips
+        },
+        4: {
+            'default': [(0, 0, 0.5, 0.5), (0.5, 0, 0.5, 0.5), (0, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)],  # Grid
+            'option1': [(0, 0, 1, 0.4), (0, 0.4, 0.33, 0.6), (0.33, 0.4, 0.34, 0.6), (0.67, 0.4, 0.33, 0.6)],
+            # One top, three bottom
+            'option2': [(0, 0, 0.25, 1), (0.25, 0, 0.25, 1), (0.5, 0, 0.25, 1), (0.75, 0, 0.25, 1)]
+            # Four vertical strips
+        },
+        5: {
+            'default': [(0, 0, 0.33, 0.5), (0.33, 0, 0.33, 0.5), (0.66, 0, 0.34, 0.5),
+                        (0, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)],  # Three top, two bottom
+            'option1': [(0, 0, 1, 0.4), (0, 0.4, 0.25, 0.6), (0.25, 0.4, 0.25, 0.6),
+                        (0.5, 0.4, 0.25, 0.6), (0.75, 0.4, 0.25, 0.6)],  # One top, four bottom
+            'option2': [(0, 0, 0.2, 1), (0.2, 0, 0.2, 1), (0.4, 0, 0.2, 1),
+                        (0.6, 0, 0.2, 1), (0.8, 0, 0.2, 1)]  # Five vertical strips
+        },
+        6: {
+            'default': [(0, 0, 0.33, 0.5), (0.33, 0, 0.33, 0.5), (0.66, 0, 0.34, 0.5),
+                        (0, 0.5, 0.33, 0.5), (0.33, 0.5, 0.33, 0.5), (0.66, 0.5, 0.34, 0.5)],  # 3x2 grid
+            'option1': [(0, 0, 1, 0.33), (0, 0.33, 0.5, 0.34), (0.5, 0.33, 0.5, 0.34),
+                        (0, 0.67, 0.33, 0.33), (0.33, 0.67, 0.33, 0.33), (0.66, 0.67, 0.34, 0.33)],
+            # One top, two middle, three bottom
+            'option2': [(0, 0, 0.167, 1), (0.167, 0, 0.167, 1), (0.334, 0, 0.167, 1),
+                        (0.501, 0, 0.167, 1), (0.668, 0, 0.167, 1), (0.835, 0, 0.165, 1)]  # Six vertical strips
+        }
     }
 
     if custom_layout:
@@ -36,11 +68,11 @@ def create_flexible_layout(num_images, custom_layout=None):
         except json.JSONDecodeError:
             print("Invalid custom layout. Using default.")
 
-    return default_layouts.get(num_images, default_layouts[4])
+    return default_layouts.get(num_images, default_layouts[4])[layout_style]
 
 
 def create_pdf(images, story_content, title, font_size, custom_layout, border_thickness, dialogue_position, frame_color,
-               full_fill=False):
+               full_fill=False, layout_style='default'):
     pdf_path = "story_output.pdf"
     page_width, page_height = A4
     margin = 0.5 * inch
@@ -59,8 +91,8 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
     image_area_height = content_height * 0.6  # Use 60% of the content area for images
     image_start_y = page_height - margin - title_height - image_area_height
 
-    # Create flexible layout
-    layout = create_flexible_layout(len(images), custom_layout)
+    # Create flexible layout with specified style
+    layout = create_flexible_layout(len(images), custom_layout, layout_style)
 
     # Parse frame color
     frame_color = Color(*[int(frame_color.lstrip('#')[i:i + 2], 16) / 255 for i in (0, 2, 4)])
@@ -72,12 +104,12 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
         img_w = w * content_width
         img_h = h * image_area_height
 
-        # Draw comic-style frame for each individual image
+        # Draw comic-style frame
         c.setStrokeColor(frame_color)
         c.setLineWidth(border_thickness)
         c.rect(img_x, img_y, img_w, img_h)
 
-        # Add image (adjusted to fit inside the border)
+        # Add image
         image_margin = border_thickness / 2
         if full_fill:
             c.drawImage(img_path,
@@ -150,7 +182,8 @@ def interface(
         dialogue_position,
         frame_color,
         full_fill,
-        custom_layout
+        custom_layout,
+        layout_style
 ):
     if story_file is not None:
         story_content = read_story_from_file(story_file)
@@ -176,13 +209,14 @@ def interface(
         border_thickness,
         dialogue_position,
         frame_color,
-        full_fill
+        full_fill,
+        layout_style
     )
 
     return valid_images, pdf_path
 
 
-# Create the Gradio interface with improved organization
+# Create the Gradio interface
 with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as iface:
     gr.Markdown("""
     # Story to Comic Generator
@@ -227,6 +261,12 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
                         value=2,
                         info="How many panels should your comic have?"
                     )
+                    layout_style = gr.Radio(
+                        choices=["default", "option1", "option2"],
+                        label="Layout Style",
+                        value="default",
+                        info="Choose the panel arrangement style"
+                    )
                     frame_color = gr.ColorPicker(
                         label="Frame Color",
                         value="#4A4A4A",
@@ -258,7 +298,7 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
                         info="Where should the dialogue bubbles appear?"
                     )
 
-        # Advanced Settings Tab
+            # Advanced Settings Tab
         with gr.TabItem("⚙️ Advanced"):
             with gr.Row():
                 with gr.Column():
@@ -274,7 +314,7 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
                         info="For advanced users: Customize panel positions and sizes"
                     )
 
-    # Output Section
+        # Output Section
     with gr.Row():
         generate_btn = gr.Button("Generate Comic", variant="primary")
 
@@ -282,7 +322,7 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
         gallery = gr.Gallery(label="Generated Comic Frames")
         pdf_output = gr.File(label="Download Comic PDF")
 
-    # Connect the interface
+        # Connect the interface
     generate_btn.click(
         interface,
         inputs=[
@@ -296,7 +336,8 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
             dialogue_position,
             frame_color,
             full_fill,
-            custom_layout
+            custom_layout,
+            layout_style
         ],
         outputs=[gallery, pdf_output]
     )
