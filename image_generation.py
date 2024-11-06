@@ -1,36 +1,32 @@
 import base64
 from openai import OpenAI
+from prompt_template import PROMPT_GENERATION_TEMPLATE
 import os
 
 client = OpenAI(api_key="key")
 
-def read_story_from_file(file):
-    return file.decode('utf-8')
+def read_story_from_file(story_file):
+    with open(story_file, 'r', encoding='utf-8') as file:
+        return file.read()
 
 def generate_prompts(story_content, num_frames, art_style):
-    prompt = f"""
-    Based on the following story:
-
-    {story_content}
-
-    Create {num_frames} prompts to draw illustrations for this story. 
-    Each prompt should describe an important scene in the story.
-    Art style: {art_style}
-
-    Respond with a list of prompts, one prompt per line.
-    """
-
-    print("Generating prompts...")
-    print(prompt)
+    prompt = PROMPT_GENERATION_TEMPLATE.format(story=story_content, number=num_frames, style=art_style)
 
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
+        model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
-    return response.choices[0].message.content.strip().split('\n')
+    prompts = response.choices[0].message.content.split('[')
+    cleaned_prompts = []
+    for prompt in prompts:
+        if prompt.strip():  # Ignore empty or whitespace-only strings
+            # Remove the leading number and bracket, and strip any excess whitespace
+            cleaned_prompt = prompt.split(']', 1)[-1].strip().strip('"')
+            cleaned_prompts.append(cleaned_prompt)    
+    return cleaned_prompts
 
 
-def create_image(prompt, model="dall-e-2"):
+def create_image(prompt, model="dall-e-3"):
     print(f"Creating image with prompt: {prompt}")
     if not prompt:
         raise ValueError("Empty prompt provided to create_image function")
@@ -39,8 +35,9 @@ def create_image(prompt, model="dall-e-2"):
         model=model,
         prompt=prompt,
         n=1,
-        size="512x512",
-        response_format="b64_json"
+        size="1024x1024",
+        response_format="b64_json",
+        quality="standard"
     )
     return response.data[0].b64_json
 
