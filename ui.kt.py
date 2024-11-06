@@ -14,7 +14,7 @@ import os
 
 # Register fonts
 pdfmetrics.registerFont(TTFont('DejaVuSans', 'Fonts/dsf/DejaVuSans.ttf'))
-pdfmetrics.registerFont(TTFont('ComicSansMS', 'Fonts/am/Action_Man.ttf'))
+pdfmetrics.registerFont(TTFont('ComicSansMS', 'Fonts/dsf/DejaVuSans.ttf'))
 
 def create_flexible_layout(num_images, custom_layout=None, layout_style='default'):
     # Each number of frames now has 3 layout options
@@ -65,8 +65,22 @@ def create_flexible_layout(num_images, custom_layout=None, layout_style='default
 
     return default_layouts.get(num_images, default_layouts[4])[layout_style]
 
+
 def create_pdf(images, story_content, title, font_size, custom_layout, border_thickness, dialogue_position, frame_color,
                full_fill=False, layout_style='default'):
+    # Đăng ký font Unicode
+    try:
+        pdfmetrics.registerFont(TTFont('DejaVuSans', 'Fonts/DejaVuSans.ttf'))
+        pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'Fonts/DejaVuSans-Bold.ttf'))
+        main_font = 'DejaVuSans'
+    except:
+        try:
+            pdfmetrics.registerFont(TTFont('ArialUnicode', 'Fonts/ArialUnicode.ttf'))
+            main_font = 'ArialUnicode'
+        except:
+            main_font = 'ComicSansMS'
+            print("Warning: No Unicode font available. Vietnamese characters may not display correctly.")
+
     pdf_path = "story_output.pdf"
     page_width, page_height = A4
     margin = 0.5 * inch
@@ -75,14 +89,15 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
 
     c = canvas.Canvas(pdf_path, pagesize=A4)
 
+    # First page - Images
     # Set title
     title_height = 1 * inch
-    c.setFont("ComicSansMS", font_size + 8)
+    c.setFont(main_font, font_size + 8)
     c.setFillColor(Color(0.1, 0.1, 0.1))
     c.drawCentredString(page_width / 2, page_height - 0.5 * inch, title)
 
     # Adjust content area for images
-    image_area_height = content_height * 0.6  # Use 60% of the content area for images
+    image_area_height = content_height * 0.8
     image_start_y = page_height - margin - title_height - image_area_height
 
     # Create flexible layout with specified style
@@ -99,19 +114,17 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
     }
     position = dialogue_position_map.get(dialogue_position, "inside_bottom")
 
+    # Draw images
     for i, (img_path, (x, y, w, h)) in enumerate(zip(images, layout)):
-        # Calculate image position and size
         img_x = margin + x * content_width
         img_y = image_start_y + (1 - y - h) * image_area_height
         img_w = w * content_width
         img_h = h * image_area_height
 
-        # Draw comic-style frame
         c.setStrokeColor(frame_color)
         c.setLineWidth(border_thickness)
         c.rect(img_x, img_y, img_w, img_h)
 
-        # Add image
         image_margin = border_thickness / 2
         if full_fill:
             c.drawImage(img_path,
@@ -129,45 +142,103 @@ def create_pdf(images, story_content, title, font_size, custom_layout, border_th
                         preserveAspectRatio=True,
                         mask='auto')
 
-        # Add dialogue
-        c.setFont("ComicSansMS", font_size)
-        dialogue_text = f"Dialogue for image {i + 1}"
+        if dialogue_position != "None":
+            c.setFont(main_font, font_size)
+            dialogue_text = f"{i + 1}"
 
-        # Create speech bubble
-        bubble_margin = 10
-        text_width = c.stringWidth(dialogue_text, "ComicSansMS", font_size)
-        bubble_width = min(text_width + 2 * bubble_margin, img_w - 2 * bubble_margin)
-        bubble_height = font_size + 2 * bubble_margin
+            bubble_margin = 10
+            text_width = c.stringWidth(dialogue_text, main_font, font_size)
+            bubble_width = min(text_width + 2 * bubble_margin, img_w - 2 * bubble_margin)
+            bubble_height = font_size + 2 * bubble_margin
 
-        if position == "inside_bottom":
-            bubble_x = img_x + img_w / 2 - bubble_width / 2
-            bubble_y = img_y + bubble_height + border_thickness
-        elif position == "outside_bottom":
-            bubble_x = img_x + img_w / 2 - bubble_width / 2
-            bubble_y = img_y - bubble_height
-        else:  # inside_top
-            bubble_x = img_x + img_w / 2 - bubble_width / 2
-            bubble_y = img_y + img_h - bubble_height - border_thickness
+            if position == "inside_bottom":
+                bubble_x = img_x + img_w / 2 - bubble_width / 2
+                bubble_y = img_y + bubble_height + border_thickness
+            elif position == "outside_bottom":
+                bubble_x = img_x + img_w / 2 - bubble_width / 2
+                bubble_y = img_y - bubble_height
+            else:  # inside_top
+                bubble_x = img_x + img_w / 2 - bubble_width / 2
+                bubble_y = img_y + img_h - bubble_height - border_thickness
 
-        # Draw speech bubble
-        c.setFillColor(Color(1, 1, 1))  # White fill
-        c.setStrokeColor(frame_color)
-        c.roundRect(bubble_x, bubble_y, bubble_width, bubble_height, 5, fill=1, stroke=1)
+            c.setFillColor(Color(1, 1, 1))
+            c.setStrokeColor(frame_color)
+            c.roundRect(bubble_x, bubble_y, bubble_width, bubble_height, 5, fill=1, stroke=1)
 
-        # Add text to speech bubble
-        c.setFillColor(Color(0.1, 0.1, 0.1))  # Dark grey text
-        c.drawCentredString(bubble_x + bubble_width / 2, bubble_y + bubble_margin, dialogue_text)
+            c.setFillColor(Color(0.1, 0.1, 0.1))
+            c.drawCentredString(bubble_x + bubble_width / 2, bubble_y + bubble_margin, dialogue_text)
 
-    # Add story content
-    story_start_y = image_start_y - 0.5 * inch
-    story_height = story_start_y - margin
-    styles = getSampleStyleSheet()
-    style = ParagraphStyle('Comic', fontName='ComicSansMS', fontSize=font_size, leading=font_size * 1.2,
-                           textColor=Color(0.1, 0.1, 0.1))
+    # New page for story
+    c.showPage()
 
-    story_frame = Frame(margin, margin, content_width, story_height, showBoundary=0)
-    story = Paragraph(story_content, style)
-    story_frame.addFromList([story], c)
+    # Story page settings
+    c.setFont(main_font, font_size + 8)
+    c.setFillColor(Color(0.1, 0.1, 0.1))
+    c.drawCentredString(page_width / 2, page_height - 0.5 * inch, f"{title} - Story")
+
+    # Draw story content
+    text_object = c.beginText()
+    text_object.setFont(main_font, font_size)
+    text_object.setFillColor(Color(0.1, 0.1, 0.1))
+    text_object.setTextOrigin(margin, page_height - margin - title_height)
+
+    # Calculate maximum width for text wrapping
+    max_width = page_width - 2 * margin
+
+    # Process and draw text line by line
+    y_position = page_height - margin - title_height
+    current_page_height = margin
+    line_height = font_size * 1.2
+
+    lines = story_content.split('\n')
+
+    for line in lines:
+        # If empty line, add extra spacing
+        if not line.strip():
+            y_position -= line_height
+            if y_position < margin:
+                c.showPage()
+                y_position = page_height - margin - title_height
+            continue
+
+        # Handle regular lines
+        if len(line.strip()) > 0:
+            # Wrap text if too long
+            words = line.split()
+            current_line = []
+
+            for word in words:
+                current_line.append(word)
+                test_line = ' '.join(current_line)
+
+                # Check if current line is too wide
+                if c.stringWidth(test_line, main_font, font_size) > max_width:
+                    if len(current_line) > 1:
+                        current_line.pop()  # Remove last word
+                        final_line = ' '.join(current_line)
+                        c.setFont(main_font, font_size)
+                        c.drawString(margin, y_position, final_line)
+                        current_line = [word]  # Start new line with remaining word
+                    else:
+                        # Handle case where single word is too long
+                        c.setFont(main_font, font_size)
+                        c.drawString(margin, y_position, test_line)
+                        current_line = []
+
+                    y_position -= line_height
+                    if y_position < margin:
+                        c.showPage()
+                        y_position = page_height - margin - title_height
+
+            # Draw remaining words in current line
+            if current_line:
+                final_line = ' '.join(current_line)
+                c.setFont(main_font, font_size)
+                c.drawString(margin, y_position, final_line)
+                y_position -= line_height
+                if y_position < margin:
+                    c.showPage()
+                    y_position = page_height - margin - title_height
 
     c.save()
     return pdf_path
@@ -217,6 +288,8 @@ def interface(
 
     if not valid_images:
         return [("Error", "No valid images generated")], None
+
+    print(f"Story content: {story_content}")
 
     pdf_path = create_pdf(
         valid_images,

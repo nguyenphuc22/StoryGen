@@ -5,8 +5,9 @@ import os
 
 client = OpenAI(api_key="key")
 
-def read_story_from_file(file):
-    return file.decode('utf-8')
+def read_story_from_file(story_file):
+    with open(story_file, 'r', encoding='utf-8') as file:
+        return file.read()
 
 def generate_prompts(story_content, num_frames, art_style):
     prompt = PROMPT_GENERATION_TEMPLATE.format(story=story_content, number=num_frames, style=art_style)
