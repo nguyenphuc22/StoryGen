@@ -18,6 +18,7 @@ def interface(story_content, story_file, num_frames, art_style):
 
     return valid_images
 
+print("Starting server...")
 
 iface = gr.Interface(
     fn=interface,
