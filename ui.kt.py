@@ -1,5 +1,5 @@
 import gradio as gr
-from mock_image_generation import read_story_from_file, process_story
+from image_generation import read_story_from_file, process_story
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
