@@ -1,14 +1,54 @@
+# Ứng dụng Tạo Truyện Tranh từ Văn Bản 🎨
 
-Json Đã Test Custom:
+## 📝 Giới thiệu
+Ứng dụng Tạo Truyện Tranh là một công cụ cho phép người dùng chuyển đổi câu chuyện văn bản thành truyện tranh PDF đẹp mắt. Ứng dụng tích hợp các mô hình ngôn ngữ và hình ảnh tiên tiến để tạo ra trải nghiệm sáng tạo mượt mà.
 
-3 Ảnh:
+![ui.png](ui.png)
+
+## ✨ Tính năng chính
+- **Nhập câu chuyện**: Nhập trực tiếp hoặc tải lên file .txt
+- **Tùy chỉnh phong cách**: Lựa chọn giữa nhiều phong cách nghệ thuật (comic, anime, cổ tích, hiện thực)
+- **Bố cục linh hoạt**: Hỗ trợ từ 1-6 khung hình với nhiều kiểu bố cục khác nhau
+- **Tùy chỉnh văn bản**: Điều chỉnh cỡ chữ và vị trí hội thoại
+- **Xuất PDF**: Tạo file PDF chất lượng cao với hình ảnh và nội dung câu chuyện
+
+## 🚀 Cài đặt
+1. Cài đặt Python 3.x
+2. Cài đặt các thư viện cần thiết:
+```bash
+pip install -r requirements.txt
+```
+
+## 🔑 Yêu cầu
+- OpenAI API Key để tạo hình ảnh
+- Fonts Unicode (DejaVuSans hoặc ArialUnicode) cho hỗ trợ tiếng Việt
+
+## 💻 Cách sử dụng
+1. Khởi chạy ứng dụng:
+```bash
+python ui.kt.py
+```
+
+2. Giao diện người dùng gồm 4 tab chính:
+   - **📝 Nhập câu chuyện**: Nhập nội dung hoặc tải file
+   - **🎨 Phong cách truyện tranh**: Chọn số khung hình và phong cách
+   - **✍️ Cài đặt văn bản**: Điều chỉnh font chữ và vị trí
+   - **⚙️ Cài đặt nâng cao**: Tùy chỉnh bố cục và các tùy chọn khác
+
+## 📐 Bố cục tùy chỉnh
+Hỗ trợ định dạng JSON cho bố cục tùy chỉnh. Ví dụ:
+
+### Bố cục 3 khung hình:
+```json
 [
   [0, 0, 0.6, 1],
   [0.6, 0, 0.4, 0.5],
   [0.6, 0.5, 0.4, 0.5]
 ]
+```
 
-5 Ảnh:
+### Bố cục 5 khung hình:
+```json
 [
   [0, 0, 0.6, 0.6],
   [0.6, 0, 0.4, 0.3],
@@ -16,75 +56,20 @@ Json Đã Test Custom:
   [0, 0.6, 0.3, 0.4],
   [0.3, 0.6, 0.7, 0.4]
 ]
+```
 
-MythGen: A Dynamic New Art Form
-Overview
+## 🎯 Lưu ý khi sử dụng
+- File câu chuyện nên ở định dạng .txt với encoding UTF-8
+- Hỗ trợ tối đa 6 khung hình cho mỗi trang
+- Đảm bảo đủ dung lượng ổ cứng cho việc lưu trữ hình ảnh và PDF
+- Kiểm tra kết nối internet ổn định để tạo hình ảnh
 
-![panel_2](https://github.com/elder-plinius/MythGen/assets/133052465/86bb5784-845b-4db8-a38f-217169ea5201)
-
-
-MythGen is an Iterative Multimedia Generator that allows users to create their own comic stories based on textual prompts. The system integrates state-of-the-art language and image models to provide a seamless and creative experience.
-Features
-
-    Initial Prompting: Kick-start your story with an initial text prompt.
-    Artistic Style Suffix: Maintain a consistent artistic style throughout your comic.
-    Image Generation: Generate captivating comic panels based on textual captions.
-    Caption Generation: Produce engaging captions for each comic panel.
-    Interactive Story Building: Select your favorite panels and captions to build your story iteratively.
-    Storyboard: View the sequence of your selected panels and their associated captions.
-    State Management: Keep track of the current state of your comic generation process.
-    User-Friendly Interface: Easy-to-use interface built on Gradio.
-
-Prerequisites
-OpenAI API Key
-
-You will need an OpenAI API key to access GPT-3 for generating captions. Follow these steps to obtain one:
-
-    Visit OpenAI's Developer Dashboard.
-    Sign up for an API key and follow the verification process.
-    Once verified, you will be provided with an API key.
-
-Bing Image Creator Cookie
-
-You should obtain your cookie to run this program. Follow these steps to obtain your cookie:
-
-    Go to Bing Image Creator in your browser and log in to your account.
-    Press Ctrl+Shift+J to open developer tools.
-    Navigate to the Application section.
-    Click on the Cookies section.
-    Find the variable _U and copy its value.
-
-How to Use
-
-    Initial Prompt: Start by inputting your initial comic concept.
-    Select a Panel: Choose your favorite panel and caption from the generated options.
-    Iterate: Use the "Next Part" button to generate the next part of your comic based on your latest selection.
-    View Storyboard: See your selected comic panels and captions in a storyboard for a comprehensive view of your comic.
-    Finalize: Continue this process until you've created your full comic story.
-
-Installation
-
-bash
-
-pip install -r requirements.txt
-
-Running MythGen
-
-bash
-
-python main.py
-
-This will launch the Gradio interface where you can interact with MythGen.
-Dependencies
-
-    Python 3.x
-    Gradio
-    OpenAI's GPT-3
-    DALL-E
-
-Contributing
-
-We welcome contributions! Please read the CONTRIBUTING.md for guidelines on how to contribute to this project.
-License
-
-This project is licensed under the MIT License. See LICENSE.md for details.
+## 🛠️ Cấu trúc thư mục
+```
+├── ui.kt.py              # Giao diện người dùng chính
+├── mock_image_generation.py  # Tạo hình ảnh mẫu
+├── image_generation.py   # Tạo hình ảnh thật
+├── prompt_template.py    # Mẫu prompt cho việc tạo hình
+├── Fonts/               # Thư mục chứa font
+└── images/              # Thư mục lưu hình ảnh tạo ra
+```
