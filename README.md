@@ -1,44 +1,44 @@
-# Ứng dụng Tạo Truyện Tranh từ Văn Bản 🎨
+# Text to Comic Generator 🎨
 
-## 📝 Giới thiệu
-Ứng dụng Tạo Truyện Tranh là một công cụ cho phép người dùng chuyển đổi câu chuyện văn bản thành truyện tranh PDF đẹp mắt. Ứng dụng tích hợp các mô hình ngôn ngữ và hình ảnh tiên tiến để tạo ra trải nghiệm sáng tạo mượt mà.
+## 📝 Introduction
+Text to Comic Generator is a tool that allows users to convert text stories into beautiful PDF comics. The application integrates advanced language and image models to create a smooth creative experience.
 
 ![ui.png](ui.png)
 
-## ✨ Tính năng chính
-- **Nhập câu chuyện**: Nhập trực tiếp hoặc tải lên file .txt
-- **Tùy chỉnh phong cách**: Lựa chọn giữa nhiều phong cách nghệ thuật (comic, anime, cổ tích, hiện thực)
-- **Bố cục linh hoạt**: Hỗ trợ từ 1-6 khung hình với nhiều kiểu bố cục khác nhau
-- **Tùy chỉnh văn bản**: Điều chỉnh cỡ chữ và vị trí hội thoại
-- **Xuất PDF**: Tạo file PDF chất lượng cao với hình ảnh và nội dung câu chuyện
+## ✨ Key Features
+- **Story Input**: Direct input or upload .txt file
+- **Style Customization**: Choose from various artistic styles (comic, anime, fairy tale, realistic)
+- **Flexible Layout**: Support for 1-6 frames with different layout styles
+- **Text Customization**: Adjust font size and dialogue position
+- **PDF Export**: Generate high-quality PDFs with images and story content
 
-## 🚀 Cài đặt
-1. Cài đặt Python 3.x
-2. Cài đặt các thư viện cần thiết:
+## 🚀 Installation
+1. Install Python 3.x
+2. Install required libraries:
 ```bash
 pip install -r requirements.txt
 ```
 
-## 🔑 Yêu cầu
-- OpenAI API Key để tạo hình ảnh
-- Fonts Unicode (DejaVuSans hoặc ArialUnicode) cho hỗ trợ tiếng Việt
+## 🔑 Requirements
+- OpenAI API Key for image generation
+- Unicode Fonts (DejaVuSans or ArialUnicode) for multilingual support
 
-## 💻 Cách sử dụng
-1. Khởi chạy ứng dụng:
+## 💻 How to Use
+1. Launch the application:
 ```bash
 python ui.kt.py
 ```
 
-2. Giao diện người dùng gồm 4 tab chính:
-   - **📝 Nhập câu chuyện**: Nhập nội dung hoặc tải file
-   - **🎨 Phong cách truyện tranh**: Chọn số khung hình và phong cách
-   - **✍️ Cài đặt văn bản**: Điều chỉnh font chữ và vị trí
-   - **⚙️ Cài đặt nâng cao**: Tùy chỉnh bố cục và các tùy chọn khác
+2. User interface consists of 4 main tabs:
+   - **📝 Story Input**: Enter content or upload file
+   - **🎨 Comic Style**: Choose number of frames and style
+   - **✍️ Text Settings**: Adjust font and position
+   - **⚙️ Advanced Settings**: Customize layout and other options
 
-## 📐 Bố cục tùy chỉnh
-Hỗ trợ định dạng JSON cho bố cục tùy chỉnh. Ví dụ:
+## 📐 Custom Layouts
+Supports JSON format for custom layouts. Examples:
 
-### Bố cục 3 khung hình:
+### 3-Frame Layout:
 ```json
 [
   [0, 0, 0.6, 1],
@@ -47,7 +47,9 @@ Hỗ trợ định dạng JSON cho bố cục tùy chỉnh. Ví dụ:
 ]
 ```
 
-### Bố cục 5 khung hình:
+![image_1.png](image_1.png)
+
+### 5-Frame Layout:
 ```json
 [
   [0, 0, 0.6, 0.6],
@@ -58,18 +60,20 @@ Hỗ trợ định dạng JSON cho bố cục tùy chỉnh. Ví dụ:
 ]
 ```
 
-## 🎯 Lưu ý khi sử dụng
-- File câu chuyện nên ở định dạng .txt với encoding UTF-8
-- Hỗ trợ tối đa 6 khung hình cho mỗi trang
-- Đảm bảo đủ dung lượng ổ cứng cho việc lưu trữ hình ảnh và PDF
-- Kiểm tra kết nối internet ổn định để tạo hình ảnh
+![image_2.png](image_2.png)
 
-## 🛠️ Cấu trúc thư mục
+## 🎯 Usage Notes
+- Story files should be in .txt format with UTF-8 encoding
+- Maximum support for 6 frames per page
+- Ensure sufficient disk space for storing images and PDFs
+- Check for stable internet connection for image generation
+
+## 🛠️ Directory Structure
 ```
-├── ui.kt.py              # Giao diện người dùng chính
-├── mock_image_generation.py  # Tạo hình ảnh mẫu
-├── image_generation.py   # Tạo hình ảnh thật
-├── prompt_template.py    # Mẫu prompt cho việc tạo hình
-├── Fonts/               # Thư mục chứa font
-└── images/              # Thư mục lưu hình ảnh tạo ra
+├── ui.kt.py              # Main user interface
+├── mock_image_generation.py  # Mock image generation
+├── image_generation.py   # Real image generation
+├── prompt_template.py    # Prompt templates
+├── Fonts/               # Font directory
+└── images/              # Generated images directory
 ```
