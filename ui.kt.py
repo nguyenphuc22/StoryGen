@@ -370,6 +370,7 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
                                 info="Choose the arrangement of your comic panels"
                             )
 
+
                             art_style = gr.Dropdown(
                                 choices=["comic", "anime", "fairy tale illustration", "realistic"],
                                 label="Art Style",
