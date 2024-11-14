@@ -394,7 +394,6 @@ with gr.Blocks(title="Story to Comic Generator", theme=gr.themes.Soft()) as ifac
                             gr.Markdown("### 📐 Layout Preview")
                             layout_preview = gr.HTML(value=create_layout_preview(2))
 
-print("Starting server...")
 
                             # Update preview when either num_frames or layout_style changes
                             def update_preview(frames, style):
